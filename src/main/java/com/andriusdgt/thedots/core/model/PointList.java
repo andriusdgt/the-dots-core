@@ -7,7 +7,7 @@ public final class PointList implements Serializable {
 
     private String id;
 
-    @NotNull(message = "{com.andriusdgt.thedots.api.model.PointList.name.NotNull.message}")
+    @NotNull(message = "{com.andriusdgt.thedots.core.model.PointList.name.NotNull.message}")
     private String name;
 
     public PointList() {

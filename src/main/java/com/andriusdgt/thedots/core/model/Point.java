@@ -15,7 +15,7 @@ public final class Point implements Serializable, Comparable<Point> {
     @Range(min = -5000, max = 5000)
     private short y;
 
-    @NotNull(message = "{com.andriusdgt.thedots.api.model.Point.listId.NotNull.message}")
+    @NotNull(message = "{com.andriusdgt.thedots.core.model.Point.listId.NotNull.message}")
     private String listId;
 
     public Point() {

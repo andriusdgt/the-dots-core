@@ -22,7 +22,7 @@ public @interface Range {
 
 	@OverridesAttribute(constraint = Max.class, name = "value") long max() default Long.MAX_VALUE;
 
-	String message() default "{com.andriusdgt.thedots.api.annotation.Range.message}";
+	String message() default "{com.andriusdgt.thedots.core.annotation.Range.message}";
 
 	Class<?>[] groups() default { };
 
