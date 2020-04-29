@@ -1,11 +1,7 @@
-plugins {
-    id 'java'
-}
-
 sourceCompatibility = '11'
 
 dependencies {
-    compile project(':the-dots-api')
+    implementation "javax.validation:validation-api:2.0.1.Final"
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
