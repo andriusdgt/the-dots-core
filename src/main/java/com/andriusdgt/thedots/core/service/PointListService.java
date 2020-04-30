@@ -7,6 +7,7 @@ import com.andriusdgt.thedots.core.repository.PointRepository;
 import javax.validation.ValidationException;
 import javax.validation.Validator;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,7 +25,7 @@ public final class PointListService {
 
     private static final String INCORRECT_FORMAT_WARNING = "Found incorrectly formatted lines, ignoring";
     private static final String DUPLICATES_FOUND_WARNING = "Found duplicates, only distinct ones will be preserved";
-    private static final String LIST_SIZE_EXCEED_WARNING_FORMAT =
+    private static final String LIST_SIZE_EXCEED_WARNING =
         "New points exceeds list size limit of %d, not all points will be imported";
     private static final String POINTS_LINE_REGEX = "[-]?\\d+ [-]?\\d+";
 
@@ -51,19 +52,13 @@ public final class PointListService {
         pointListRepository.save(pointList);
     }
 
-    public Set<Warning> create(Stream<String> linesInputStream, String listId, long pointListSizeLimit) {
+    public Set<Warning> create(Stream<String> linesStream, String listId, long pointListSizeLimit) {
         Set<Warning> warnings = new HashSet<>();
-        List<Point> points = linesInputStream
-            .peek(line -> {
-                if (!line.matches(POINTS_LINE_REGEX))
-                    warnings.add(new Warning(INCORRECT_FORMAT_WARNING));
-            })
+        List<Point> points = linesStream
+            .peek(addFormatWarningIfPresent(warnings))
             .filter(line -> line.matches(POINTS_LINE_REGEX))
             .map(line -> createPoint(listId, line))
-            .peek(point -> {
-                if (!validator.validate(point).isEmpty())
-                    warnings.add(new Warning(validator.validate(point).iterator().next().getMessage()));
-            })
+            .peek(addValidationWarningIfPresent(warnings))
             .filter(point -> validator.validate(point).isEmpty())
             .collect(Collectors.toList());
 
@@ -76,7 +71,7 @@ public final class PointListService {
             warnings.add(new Warning(DUPLICATES_FOUND_WARNING));
 
         if (points.size() + existingPoints.size() > pointListSizeLimit) {
-            warnings.add(new Warning(String.format(LIST_SIZE_EXCEED_WARNING_FORMAT, pointListSizeLimit)));
+            warnings.add(new Warning(String.format(LIST_SIZE_EXCEED_WARNING, pointListSizeLimit)));
             points = points.subList(0, (int) pointListSizeLimit - existingPoints.size());
         }
 
@@ -97,6 +92,20 @@ public final class PointListService {
             .flatMap(List::stream)
             .collect(Collectors.toList());
 
+    }
+
+    private Consumer<Point> addValidationWarningIfPresent(Set<Warning> warnings) {
+        return point -> {
+            if (!validator.validate(point).isEmpty())
+                warnings.add(new Warning(validator.validate(point).iterator().next().getMessage()));
+        };
+    }
+
+    private Consumer<String> addFormatWarningIfPresent(Set<Warning> warnings) {
+        return line -> {
+            if (!line.matches(POINTS_LINE_REGEX))
+                warnings.add(new Warning(INCORRECT_FORMAT_WARNING));
+        };
     }
 
     private Function<List<Point>, List<Square>> toSquares(Map<Integer, List<Point>> groupedXPoints) {
