@@ -7,12 +7,14 @@ import com.andriusdgt.thedots.core.repository.PointRepository;
 import javax.validation.ValidationException;
 import javax.validation.Validator;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.andriusdgt.thedots.core.model.SquareVertex.BOTTOM_RIGHT;
 import static com.andriusdgt.thedots.core.model.SquareVertex.UPPER_RIGHT;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.paukov.combinatorics.CombinatoricsFactory.*;
 
 public final class PointListService {
 
@@ -84,32 +86,40 @@ public final class PointListService {
 
     public List<Square> findSquares(String listId) {
         SortedSet<Point> points = new TreeSet<>(pointRepository.findByListId(listId));
-        Map<Integer, List<Point>> xAxisPoints =
-            points.stream().collect(Collectors.groupingBy(Point::getX, toList()));
+        Map<Integer, List<Point>> groupedXPoints = Collections.unmodifiableMap(
+            points.stream().collect(Collectors.groupingBy(Point::getX, toUnmodifiableList()))
+        );
 
-        return xAxisPoints.values().stream().map(pointGroup -> {
-            List<Square> squares = new ArrayList<>();
-            for (int firstPointIndex = 0; firstPointIndex < pointGroup.size() - 1; firstPointIndex++) {
-                for (int secondPointIndex = firstPointIndex + 1; secondPointIndex < pointGroup.size(); secondPointIndex++) {
-                    int x = pointGroup.get(firstPointIndex).getX();
-                    Square square = new Square(pointGroup.get(firstPointIndex), pointGroup.get(secondPointIndex));
-                    if (squareExists(xAxisPoints, x, square))
-                        squares.add(square);
-                }
-            }
-            return squares;
-        })
+        return groupedXPoints
+            .values()
+            .stream()
+            .map(toSquares(groupedXPoints))
             .flatMap(List::stream)
             .collect(Collectors.toList());
 
     }
 
-    private boolean squareExists(Map<Integer, List<Point>> xAxisPoints, int x, Square square) {
-        return getParallelAxis(xAxisPoints, x + square.getSideLength()).containsAll(getRightVertices(square));
+    private Function<List<Point>, List<Square>> toSquares(Map<Integer, List<Point>> groupedXPoints) {
+        return pointGroup -> {
+            List<Square> squares = new ArrayList<>();
+            createSimpleCombinationGenerator(range(0, pointGroup.size() - 1), 2)
+                .forEach(indexPair -> {
+                    int firstIndex = indexPair.getValue(0);
+                    int secondIndex = indexPair.getValue(1);
+                    Square square = new Square(pointGroup.get(firstIndex), pointGroup.get(secondIndex));
+                    if (squareExists(groupedXPoints, square, pointGroup.get(firstIndex).getX()))
+                        squares.add(square);
+                });
+            return squares;
+        };
     }
 
-    private List<Point> getParallelAxis(Map<Integer, List<Point>> xAxisPoints, int parallelX) {
-        return xAxisPoints.getOrDefault(parallelX, new ArrayList<>());
+    private boolean squareExists(Map<Integer, List<Point>> groupedXPoints, Square square, int x) {
+        return getPoints(x + square.getSideLength(), groupedXPoints).containsAll(getRightVertices(square));
+    }
+
+    private List<Point> getPoints(int x, Map<Integer, List<Point>> groupedXPoints) {
+        return groupedXPoints.getOrDefault(x, new ArrayList<>());
     }
 
     private HashSet<Point> getRightVertices(Square square) {
