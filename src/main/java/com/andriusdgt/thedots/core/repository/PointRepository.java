@@ -8,7 +8,7 @@ public interface PointRepository {
 
     void save(Point point);
 
-    void saveAll(List<Point> points);
+    void saveAll(Iterable<Point> points);
 
     List<Point> findByListId(String listId);
 
