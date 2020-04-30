@@ -55,11 +55,6 @@ public final class Point implements Serializable, Comparable<Point> {
         return result;
     }
 
-    @Override
-    public String toString() {
-        return getX() + " " + getY();
-    }
-
     public String getId() {
         return id;
     }
