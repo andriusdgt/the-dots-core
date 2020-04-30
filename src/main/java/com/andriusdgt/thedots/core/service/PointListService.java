@@ -1,8 +1,6 @@
 package com.andriusdgt.thedots.core.service;
 
-import com.andriusdgt.thedots.core.model.Point;
-import com.andriusdgt.thedots.core.model.PointList;
-import com.andriusdgt.thedots.core.model.Warning;
+import com.andriusdgt.thedots.core.model.*;
 import com.andriusdgt.thedots.core.repository.PointListRepository;
 import com.andriusdgt.thedots.core.repository.PointRepository;
 
@@ -12,6 +10,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.andriusdgt.thedots.core.model.SquareVertex.BOTTOM_RIGHT;
+import static com.andriusdgt.thedots.core.model.SquareVertex.UPPER_RIGHT;
 import static java.util.stream.Collectors.toList;
 
 public final class PointListService {
@@ -49,10 +49,6 @@ public final class PointListService {
         pointListRepository.save(pointList);
     }
 
-    private boolean isFound(PointList pointList) {
-        return pointList != null;
-    }
-
     public Set<Warning> create(Stream<String> linesInputStream, String listId, long pointListSizeLimit) {
         Set<Warning> warnings = new HashSet<>();
         List<Point> points = linesInputStream
@@ -86,6 +82,44 @@ public final class PointListService {
         return warnings;
     }
 
+    public List<Square> findSquares(String listId) {
+        SortedSet<Point> points = new TreeSet<>(pointRepository.findByListId(listId));
+        Map<Integer, List<Point>> xAxisPoints =
+            points.stream().collect(Collectors.groupingBy(Point::getX, toList()));
+
+        return xAxisPoints.values().stream().map(pointGroup -> {
+            List<Square> squares = new ArrayList<>();
+            for (int firstPointIndex = 0; firstPointIndex < pointGroup.size() - 1; firstPointIndex++) {
+                for (int secondPointIndex = firstPointIndex + 1; secondPointIndex < pointGroup.size(); secondPointIndex++) {
+                    int x = pointGroup.get(firstPointIndex).getX();
+                    Square square = new Square(pointGroup.get(firstPointIndex), pointGroup.get(secondPointIndex));
+                    if (squareExists(xAxisPoints, x, square))
+                        squares.add(square);
+                }
+            }
+            return squares;
+        })
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+
+    }
+
+    private boolean squareExists(Map<Integer, List<Point>> xAxisPoints, int x, Square square) {
+        return getParallelAxis(xAxisPoints, x + square.getSideLength()).containsAll(getRightVertices(square));
+    }
+
+    private List<Point> getParallelAxis(Map<Integer, List<Point>> xAxisPoints, int parallelX) {
+        return xAxisPoints.getOrDefault(parallelX, new ArrayList<>());
+    }
+
+    private HashSet<Point> getRightVertices(Square square) {
+        return new HashSet<>(Set.of(square.getVertex(UPPER_RIGHT), square.getVertex(BOTTOM_RIGHT)));
+    }
+
+    private boolean isFound(PointList pointList) {
+        return pointList != null;
+    }
+
     private Point createPoint(String listId, String pointsLine) {
         short x = Short.parseShort(pointsLine.split(" ")[0]);
         short y = Short.parseShort(pointsLine.split(" ")[1]);
@@ -98,31 +132,5 @@ public final class PointListService {
             .stream()
             .map(point -> String.format("%d %d", point.getX(), point.getY()))
             .collect(Collectors.joining("\n"));
-    }
-
-    @SuppressWarnings("SimplifyStreamApiCallChains")
-    public List<List<Point>> findSquares(String listId) {
-        List<List<Point>> squares = new ArrayList<>();
-        SortedSet<Point> points = new TreeSet<>(pointRepository.findByListId(listId));
-        Map<Short, List<Point>> xAxisPoints =
-            points.stream().collect(Collectors.groupingBy(Point::getX, toList()));
-
-        xAxisPoints.values().stream().forEach(pointGroup -> {
-            for (int firstPointIndex = 0; firstPointIndex < pointGroup.size() - 1; firstPointIndex++) {
-                for (int secondPointIndex = firstPointIndex + 1; secondPointIndex < pointGroup.size(); secondPointIndex++) {
-                    short x = pointGroup.get(firstPointIndex).getX();
-                    short sideLength = (short) Math.abs(pointGroup.get(secondPointIndex).getY() - pointGroup.get(firstPointIndex).getY());
-                    Point firstVertex = pointGroup.get(firstPointIndex);
-                    Point secondVertex = pointGroup.get(secondPointIndex);
-                    Point thirdVertex = new Point((short) (x + sideLength), firstVertex.getY(), listId);
-                    Point fourthVertex = new Point((short) (x + sideLength), secondVertex.getY(), listId);
-                    if (xAxisPoints.containsKey((short) (x + sideLength))
-                        && xAxisPoints.get((short) (x + sideLength)).containsAll(new HashSet<>(Set.of(thirdVertex, fourthVertex))))
-                        squares.add(Arrays.asList(firstVertex, secondVertex, thirdVertex, fourthVertex));
-                }
-            }
-        });
-
-        return squares;
     }
 }

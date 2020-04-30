@@ -10,10 +10,10 @@ public final class Point implements Serializable, Comparable<Point> {
     private String id;
 
     @Range(min = -5000, max = 5000)
-    private short x;
+    private int x;
 
     @Range(min = -5000, max = 5000)
-    private short y;
+    private int y;
 
     @NotNull(message = "{com.andriusdgt.thedots.core.model.Point.listId.NotNull.message}")
     private String listId;
@@ -21,7 +21,7 @@ public final class Point implements Serializable, Comparable<Point> {
     public Point() {
     }
 
-    public Point(short x, short y, String listId) {
+    public Point(int x, int y, String listId) {
         this.x = x;
         this.y = y;
         this.listId = listId;
@@ -42,16 +42,16 @@ public final class Point implements Serializable, Comparable<Point> {
     @Override
     public int hashCode() {
         int result = getX();
-        result = 31 * result + (int) getY();
+        result = 31 * result + getY();
         result = 31 * result + getListId().hashCode();
         return result;
     }
 
     @Override
     public int compareTo(Point other) {
-        int result = Short.compare(this.x, other.x);
+        int result = Integer.compare(this.x, other.x);
         if (result == 0)
-            result = Short.compare(this.y, other.y);
+            result = Integer.compare(this.y, other.y);
         return result;
     }
 
@@ -59,11 +59,11 @@ public final class Point implements Serializable, Comparable<Point> {
         return id;
     }
 
-    public short getX() {
+    public int getX() {
         return x;
     }
 
-    public short getY() {
+    public int getY() {
         return y;
     }
 
