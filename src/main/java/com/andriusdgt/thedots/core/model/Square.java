@@ -39,7 +39,7 @@ public final class Square {
     private Point createRightVertex(SquareVertex leftVertex) {
         Point leftPoint = getVertex(leftVertex);
         return new Point(
-            (short) (leftPoint.getX() + getSideLength()),
+            leftPoint.getX() + getSideLength(),
             leftPoint.getY(),
             leftPoint.getListId()
         );

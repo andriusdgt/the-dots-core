@@ -140,8 +140,8 @@ public final class PointListService {
     }
 
     private Point createPoint(String listId, String pointsLine) {
-        short x = Short.parseShort(pointsLine.split(" ")[0]);
-        short y = Short.parseShort(pointsLine.split(" ")[1]);
+        int x = Integer.parseInt(pointsLine.split(" ")[0]);
+        int y = Integer.parseInt(pointsLine.split(" ")[1]);
         return new Point(x, y, listId);
     }
 
