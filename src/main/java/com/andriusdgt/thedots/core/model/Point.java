@@ -5,7 +5,7 @@ import com.andriusdgt.thedots.core.annotation.Range;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-public final class Point implements Serializable, Comparable<Point> {
+public final class Point implements Serializable {
 
     private String id;
 
@@ -44,14 +44,6 @@ public final class Point implements Serializable, Comparable<Point> {
         int result = getX();
         result = 31 * result + getY();
         result = 31 * result + getListId().hashCode();
-        return result;
-    }
-
-    @Override
-    public int compareTo(Point other) {
-        int result = Integer.compare(this.x, other.x);
-        if (result == 0)
-            result = Integer.compare(this.y, other.y);
         return result;
     }
 

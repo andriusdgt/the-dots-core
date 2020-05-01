@@ -9,12 +9,11 @@ import javax.validation.Validator;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.andriusdgt.thedots.core.model.SquareVertex.BOTTOM_RIGHT;
 import static com.andriusdgt.thedots.core.model.SquareVertex.UPPER_RIGHT;
-import static java.util.stream.Collectors.toUnmodifiableList;
+import static java.util.stream.Collectors.*;
 import static org.paukov.combinatorics.CombinatoricsFactory.*;
 
 public final class PointListService {
@@ -60,11 +59,11 @@ public final class PointListService {
             .map(line -> createPoint(listId, line))
             .peek(addValidationWarningIfPresent(warnings))
             .filter(point -> validator.validate(point).isEmpty())
-            .collect(Collectors.toList());
+            .collect(toList());
 
         int pointCount = points.size();
 
-        points = points.stream().distinct().collect(Collectors.toList());
+        points = points.stream().distinct().collect(toList());
         List<Point> existingPoints = pointRepository.findByListId(listId);
         points.removeAll(existingPoints);
         if (points.size() != pointCount)
@@ -80,9 +79,11 @@ public final class PointListService {
     }
 
     public List<Square> findSquares(String listId) {
-        SortedSet<Point> points = new TreeSet<>(pointRepository.findByListId(listId));
         Map<Integer, List<Point>> groupedXPoints = Collections.unmodifiableMap(
-            points.stream().collect(Collectors.groupingBy(Point::getX, toUnmodifiableList()))
+            pointRepository
+                .findByListIdOrderByXAscYAsc(listId)
+                .stream()
+                .collect(groupingBy(Point::getX, toUnmodifiableList()))
         );
 
         return groupedXPoints
@@ -90,8 +91,7 @@ public final class PointListService {
             .stream()
             .map(toSquares(groupedXPoints))
             .flatMap(List::stream)
-            .collect(Collectors.toList());
-
+            .collect(toList());
     }
 
     private Consumer<Point> addValidationWarningIfPresent(Set<Warning> warnings) {
@@ -150,6 +150,6 @@ public final class PointListService {
             .findByListId(listId)
             .stream()
             .map(point -> String.format("%d %d", point.getX(), point.getY()))
-            .collect(Collectors.joining("\n"));
+            .collect(joining("\n"));
     }
 }

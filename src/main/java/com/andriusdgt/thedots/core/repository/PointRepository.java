@@ -12,6 +12,8 @@ public interface PointRepository {
 
     List<Point> findByListId(String listId);
 
+    List<Point> findByListIdOrderByXAscYAsc(String listId);
+
     List<Point> findByListId(String listId, int pageIndex, int pageSize);
 
     List<Point> findByListId(String listId, int pageIndex, int pageSize, String sortDirection);
