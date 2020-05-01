@@ -14,6 +14,8 @@ public interface PointRepository {
 
     List<Point> findByListId(String listId, int pageIndex, int pageSize);
 
+    List<Point> findByListId(String listId, int pageIndex, int pageSize, String sortDirection);
+
     boolean exists(Point point);
 
     long countByListId(String listId);
