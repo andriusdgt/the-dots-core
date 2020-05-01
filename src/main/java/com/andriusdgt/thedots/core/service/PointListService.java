@@ -56,7 +56,7 @@ public final class PointListService {
         List<Point> points = linesStream
             .peek(addFormatWarningIfPresent(warnings))
             .filter(line -> line.matches(POINTS_LINE_REGEX))
-            .map(line -> createPoint(listId, line))
+            .map(line -> createPoint(line, listId))
             .peek(addValidationWarningIfPresent(warnings))
             .filter(point -> validator.validate(point).isEmpty())
             .collect(toList());
@@ -139,7 +139,7 @@ public final class PointListService {
         return pointList != null;
     }
 
-    private Point createPoint(String listId, String pointsLine) {
+    private Point createPoint(String pointsLine, String listId) {
         int x = Integer.parseInt(pointsLine.split(" ")[0]);
         int y = Integer.parseInt(pointsLine.split(" ")[1]);
         return new Point(x, y, listId);
