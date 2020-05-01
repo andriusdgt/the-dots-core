@@ -16,7 +16,7 @@ public interface PointRepository {
 
     List<Point> findByListId(String listId, int pageIndex, int pageSize);
 
-    List<Point> findByListId(String listId, int pageIndex, int pageSize, String sortDirection);
+    List<Point> findByListIdOrderByXAndY(String listId, int pageIndex, int pageSize, String sortDirection);
 
     boolean exists(Point point);
 
