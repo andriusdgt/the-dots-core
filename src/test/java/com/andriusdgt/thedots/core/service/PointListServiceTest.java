@@ -377,4 +377,25 @@ class PointListServiceTest {
 
     }
 
+    @Test
+    public void getsPointFromList() {
+        List<Point> points = Collections.singletonList(new Point(10, -20, "listId"));
+        doReturn(points).when(pointRepository).findByListId("listId");
+
+        assertEquals("10 -20", pointListService.getPoints("listId"));
+    }
+
+    @Test
+    public void getsPointsFromList() {
+        List<Point> points = Arrays.asList(new Point(10, -20, "listId"), new Point(-10, 20, "listId"));
+        doReturn(points).when(pointRepository).findByListId("listId");
+
+        assertEquals("10 -20\n-10 20", pointListService.getPoints("listId"));
+    }
+
+    @Test
+    public void getsPointsFromEmptyList() {
+        assertEquals("", pointListService.getPoints("listId"));
+    }
+
 }
