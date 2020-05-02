@@ -30,7 +30,7 @@ class SquareServiceTest {
     }
 
     @Test
-    public void findsASquare() {
+    public void findsSquare() {
         doReturn(
             Arrays.asList(
                 new Point(0, 0, "listId"),
@@ -152,12 +152,12 @@ class SquareServiceTest {
     }
 
     @Test
-    public void doesNotFindSquaresInEmptyList() {
+    public void doesNotFindSquaresInEmptyPointList() {
         assertEquals(0, squareService.find("listId").size());
     }
 
     @Test
-    public void doesNotFindSquaresFromIncompleteList() {
+    public void doesNotFindSquaresFromIncompletePoints() {
         doReturn(
             Arrays.asList(new Point(0, 0, "listId"), new Point(0, 5, "listId"), new Point(5, 5, "listId"))
         ).when(pointRepository).findByListIdOrderByXAscYAsc("listId");
