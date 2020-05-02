@@ -1,6 +1,8 @@
 package com.andriusdgt.thedots.core.service;
 
-import com.andriusdgt.thedots.core.model.*;
+import com.andriusdgt.thedots.core.model.Point;
+import com.andriusdgt.thedots.core.model.PointList;
+import com.andriusdgt.thedots.core.model.Warning;
 import com.andriusdgt.thedots.core.repository.PointListRepository;
 import com.andriusdgt.thedots.core.repository.PointRepository;
 
@@ -8,14 +10,10 @@ import javax.validation.ValidationException;
 import javax.validation.Validator;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.andriusdgt.thedots.core.model.SquareVertex.BOTTOM_RIGHT;
-import static com.andriusdgt.thedots.core.model.SquareVertex.UPPER_RIGHT;
-import static java.util.stream.Collectors.*;
-import static org.paukov.combinatorics.CombinatoricsFactory.createSimpleCombinationGenerator;
-import static org.paukov.combinatorics.CombinatoricsFactory.range;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 public final class PointListService {
 
@@ -79,22 +77,6 @@ public final class PointListService {
         return warnings;
     }
 
-    public List<Square> findSquares(String listId) {
-        Map<Integer, List<Point>> groupedXPoints = Collections.unmodifiableMap(
-            pointRepository
-                .findByListIdOrderByXAscYAsc(listId)
-                .stream()
-                .collect(groupingBy(Point::getX, toUnmodifiableList()))
-        );
-
-        return groupedXPoints
-            .values()
-            .stream()
-            .map(toSquares(groupedXPoints))
-            .flatMap(List::stream)
-            .collect(toList());
-    }
-
     private Consumer<Point> addValidationWarningIfPresent(Set<Warning> warnings) {
         return point -> {
             if (!validator.validate(point).isEmpty())
@@ -107,33 +89,6 @@ public final class PointListService {
             if (!line.matches(POINTS_LINE_REGEX))
                 warnings.add(new Warning(INCORRECT_FORMAT_WARNING));
         };
-    }
-
-    private Function<List<Point>, List<Square>> toSquares(Map<Integer, List<Point>> groupedXPoints) {
-        return pointGroup -> {
-            List<Square> squares = new ArrayList<>();
-            createSimpleCombinationGenerator(range(0, pointGroup.size() - 1), 2)
-                .forEach(indexPair -> {
-                    int firstIndex = indexPair.getValue(0);
-                    int secondIndex = indexPair.getValue(1);
-                    Square square = new Square(pointGroup.get(firstIndex), pointGroup.get(secondIndex));
-                    if (squareExists(groupedXPoints, square, pointGroup.get(firstIndex).getX()))
-                        squares.add(square);
-                });
-            return squares;
-        };
-    }
-
-    private boolean squareExists(Map<Integer, List<Point>> groupedXPoints, Square square, int x) {
-        return getPoints(x + square.getSideLength(), groupedXPoints).containsAll(getRightVertices(square));
-    }
-
-    private List<Point> getPoints(int x, Map<Integer, List<Point>> groupedXPoints) {
-        return groupedXPoints.getOrDefault(x, new ArrayList<>());
-    }
-
-    private HashSet<Point> getRightVertices(Square square) {
-        return new HashSet<>(Set.of(square.getVertex(UPPER_RIGHT), square.getVertex(BOTTOM_RIGHT)));
     }
 
     private boolean isFound(PointList pointList) {
