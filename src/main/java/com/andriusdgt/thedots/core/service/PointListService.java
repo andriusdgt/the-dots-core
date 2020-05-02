@@ -14,7 +14,8 @@ import java.util.stream.Stream;
 import static com.andriusdgt.thedots.core.model.SquareVertex.BOTTOM_RIGHT;
 import static com.andriusdgt.thedots.core.model.SquareVertex.UPPER_RIGHT;
 import static java.util.stream.Collectors.*;
-import static org.paukov.combinatorics.CombinatoricsFactory.*;
+import static org.paukov.combinatorics.CombinatoricsFactory.createSimpleCombinationGenerator;
+import static org.paukov.combinatorics.CombinatoricsFactory.range;
 
 public final class PointListService {
 
@@ -152,4 +153,5 @@ public final class PointListService {
             .map(point -> String.format("%d %d", point.getX(), point.getY()))
             .collect(joining("\n"));
     }
+
 }
