@@ -22,8 +22,8 @@ public interface PointRepository {
 
     long countByListId(String listId);
 
-    void deleteByListId(String listId);
-
     void deleteById(String id);
+
+    void deleteByListId(String listId);
 
 }
