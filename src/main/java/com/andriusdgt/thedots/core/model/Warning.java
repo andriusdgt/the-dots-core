@@ -4,7 +4,7 @@ public final class Warning {
 
     private final String message;
 
-    public Warning(String message){
+    public Warning(String message) {
         this.message = message;
     }
 
