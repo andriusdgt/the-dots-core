@@ -22,11 +22,9 @@ public final class PointListService {
     private final PointRepository pointRepository;
     private final PointListRepository pointListRepository;
 
-    private static final String INCORRECT_FORMAT_WARNING = "Found incorrectly formatted lines, ignoring";
-    private static final String DUPLICATES_FOUND_WARNING = "Found duplicates, only distinct ones will be preserved";
+    private static final String POINTS_LINE_REGEX = "[-]?\\d+ [-]?\\d+";
     private static final String LIST_SIZE_EXCEED_WARNING =
         "New points exceeds list size limit of %d, not all points will be imported";
-    private static final String POINTS_LINE_REGEX = "[-]?\\d+ [-]?\\d+";
 
     public PointListService(
         Validator validator,
@@ -67,7 +65,7 @@ public final class PointListService {
         List<Point> existingPoints = pointRepository.findByListId(listId);
         points.removeAll(existingPoints);
         if (points.size() != pointCount)
-            warnings.add(new Warning(DUPLICATES_FOUND_WARNING));
+            warnings.add(new Warning("Found duplicates, only distinct ones will be preserved"));
 
         if (points.size() + existingPoints.size() > pointListSizeLimit) {
             warnings.add(new Warning(String.format(LIST_SIZE_EXCEED_WARNING, pointListSizeLimit)));
@@ -76,6 +74,14 @@ public final class PointListService {
 
         pointRepository.saveAll(points);
         return warnings;
+    }
+
+    public String getPoints(String listId) {
+        return pointRepository
+            .findByListId(listId)
+            .stream()
+            .map(point -> String.format("%d %d", point.getX(), point.getY()))
+            .collect(joining("\n"));
     }
 
     private Consumer<Point> addValidationWarningIfPresent(Set<Warning> warnings) {
@@ -88,20 +94,12 @@ public final class PointListService {
     private Consumer<String> addFormatWarningIfPresent(Set<Warning> warnings) {
         return line -> {
             if (!line.matches(POINTS_LINE_REGEX))
-                warnings.add(new Warning(INCORRECT_FORMAT_WARNING));
+                warnings.add(new Warning("Found incorrectly formatted lines, ignoring"));
         };
     }
 
     private boolean isFound(PointList pointList) {
         return pointList != null;
-    }
-
-    public String getPoints(String listId) {
-        return pointRepository
-            .findByListId(listId)
-            .stream()
-            .map(point -> String.format("%d %d", point.getX(), point.getY()))
-            .collect(joining("\n"));
     }
 
 }
