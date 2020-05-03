@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class PointListServiceTest {
+final class PointListServiceTest {
 
     @Mock
     private Validator validator;
@@ -34,12 +34,12 @@ class PointListServiceTest {
     private PointListService pointListService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         pointListService = new PointListService(validator, pointRepository, pointListRepository);
     }
 
     @Test
-    public void createsPointList() {
+    void createsPointList() {
         PointList pointList = new PointList("listId", "list name");
 
         pointListService.create(pointList);
@@ -48,7 +48,7 @@ class PointListServiceTest {
     }
 
     @Test
-    public void doesNotCreateOnValidationError() {
+    void doesNotCreateOnValidationError() {
         PointList pointList = new PointList("listId", "list name");
         @SuppressWarnings("unchecked")
         ConstraintViolation<String> constraintViolationStub = mock(ConstraintViolation.class);
@@ -62,7 +62,7 @@ class PointListServiceTest {
     }
 
     @Test
-    public void deletedPointListOfDuplicateName() {
+    void deletedPointListOfDuplicateName() {
         PointList pointListToSave = new PointList("newListId", "list name");
         PointList savedPointList = new PointList("listId", "list name");
         doReturn(savedPointList).when(pointListRepository).findByName("list name");
@@ -73,7 +73,7 @@ class PointListServiceTest {
     }
 
     @Test
-    public void deletedPointsFromListOfDuplicateName() {
+    void deletedPointsFromListOfDuplicateName() {
         PointList pointListToSave = new PointList("newListId", "list name");
         PointList savedPointList = new PointList("listId", "list name");
         doReturn(savedPointList).when(pointListRepository).findByName("list name");
@@ -87,28 +87,28 @@ class PointListServiceTest {
     class PointsImporting {
 
         @Test
-        public void savesImportedPoints() {
+        void savesImportedPoints() {
             pointListService.create(Stream.of("10 10", "-10 -20"), "listId", 100);
 
             verify(pointRepository).saveAll(Arrays.asList(new Point(10, 10, "listId"), new Point(-10, -20, "listId")));
         }
 
         @Test
-        public void emptyStreamSavesNoPoints() {
+        void emptyStreamSavesNoPoints() {
             pointListService.create(Stream.empty(), "listId", 100);
 
             verify(pointRepository).saveAll(new ArrayList<>());
         }
 
         @Test
-        public void emptyStreamReturnsNoWarnings() {
+        void emptyStreamReturnsNoWarnings() {
             Set<Warning> warnings = pointListService.create(Stream.empty(), "listId", 100);
 
             assertTrue(warnings.isEmpty());
         }
 
         @Test
-        public void ignoresLinesWithMissingPoints() {
+        void ignoresLinesWithMissingPoints() {
             Stream<String> lines = Stream.of("10 20", "10 ", "10 ", "");
 
             pointListService.create(lines, "listId", 100);
@@ -117,7 +117,7 @@ class PointListServiceTest {
         }
 
         @Test
-        public void ignoresIncorrectlyFormattedLines() {
+        void ignoresIncorrectlyFormattedLines() {
             Stream<String> lines = Stream.of("10 20", "heyy :)", "10 30 10", "--10 20", "10 --20", "-10 -", "- -10",
                 "10 10\n10 30", "10 10oops", "10 10 ", " 10 10", "10  10", "10.0 10.0", "10,10");
 
@@ -127,7 +127,7 @@ class PointListServiceTest {
         }
 
         @Test
-        public void producesIncorrectFormatWarning() {
+        void producesIncorrectFormatWarning() {
             Set<Warning> warnings = pointListService.create(Stream.of("bananas"), "listId", 100);
 
             assertEquals(1, warnings.size());
@@ -135,7 +135,7 @@ class PointListServiceTest {
         }
 
         @Test
-        public void ignoresLinesWithValidationViolations() {
+        void ignoresLinesWithValidationViolations() {
             Point point = new Point(10, 20, "listId");
             Point invalidPoint = new Point(10, -999999, "listId");
             @SuppressWarnings("unchecked")
@@ -149,7 +149,7 @@ class PointListServiceTest {
         }
 
         @Test
-        public void producesValidationWarning() {
+        void producesValidationWarning() {
             Point point = new Point(10, 20, "listId");
             Point invalidPoint = new Point(10, -999999, "listId");
             @SuppressWarnings("unchecked")
@@ -165,7 +165,7 @@ class PointListServiceTest {
         }
 
         @Test
-        public void onlyOneWarningOfSameTypeIsProduced() {
+        void onlyOneWarningOfSameTypeIsProduced() {
             Point invalidPoint = new Point(10, -999999, "listId");
             @SuppressWarnings("unchecked")
             ConstraintViolation<String> constraintViolationStub = mock(ConstraintViolation.class);
@@ -178,7 +178,7 @@ class PointListServiceTest {
         }
 
         @Test
-        public void doesNotSaveAlreadySavedPoints() {
+        void doesNotSaveAlreadySavedPoints() {
             doReturn(Collections.singletonList(new Point(5, 5, "listId"))).when(pointRepository).findByListId("listId");
 
             pointListService.create(Stream.of("5 5"), "listId", 100);
@@ -187,7 +187,7 @@ class PointListServiceTest {
         }
 
         @Test
-        public void producesSavedDuplicatesFoundWarning() {
+        void producesSavedDuplicatesFoundWarning() {
             doReturn(Collections.singletonList(new Point(5, 5, "listId"))).when(pointRepository).findByListId("listId");
 
             Set<Warning> warnings = pointListService.create(Stream.of("5 5"), "listId", 100);
@@ -197,14 +197,14 @@ class PointListServiceTest {
         }
 
         @Test
-        public void doesNotSaveDuplicatedPoints() {
+        void doesNotSaveDuplicatedPoints() {
             pointListService.create(Stream.of("5 5", "5 5"), "listId", 100);
 
             verify(pointRepository).saveAll(Collections.singletonList(new Point(5, 5, "listId")));
         }
 
         @Test
-        public void producesDuplicatesFoundWarning() {
+        void producesDuplicatesFoundWarning() {
             Set<Warning> warnings = pointListService.create(Stream.of("5 5", "5 5"), "listId", 100);
 
             assertEquals(1, warnings.size());
@@ -212,14 +212,14 @@ class PointListServiceTest {
         }
 
         @Test
-        public void doesNotSaveTooManyPointsAtTheTime() {
+        void doesNotSaveTooManyPointsAtTheTime() {
             pointListService.create(Stream.of("10 20", "-10 -20"), "listId", 1);
 
             verify(pointRepository).saveAll(Collections.singletonList(new Point(10, 20, "listId")));
         }
 
         @Test
-        public void doesNotSaveTooManyPointsWhenListContainsSomePoints() {
+        void doesNotSaveTooManyPointsWhenListContainsSomePoints() {
             doReturn(Collections.singletonList(new Point(5, 5, "listId"))).when(pointRepository).findByListId("listId");
 
             pointListService.create(Stream.of("10 20", "-10 -20"), "listId", 2);
@@ -228,7 +228,7 @@ class PointListServiceTest {
         }
 
         @Test
-        public void producesSizeLimitReachedWarning() {
+        void producesSizeLimitReachedWarning() {
             Set<Warning> warnings = pointListService.create(Stream.of("10 20", "-10 -20"), "listId", 1);
 
             assertEquals(1, warnings.size());
@@ -237,7 +237,7 @@ class PointListServiceTest {
     }
 
     @Test
-    public void getsPointFromList() {
+    void getsPointFromList() {
         List<Point> points = Collections.singletonList(new Point(10, -20, "listId"));
         doReturn(points).when(pointRepository).findByListId("listId");
 
@@ -245,7 +245,7 @@ class PointListServiceTest {
     }
 
     @Test
-    public void getsPointsFromList() {
+    void getsPointsFromList() {
         List<Point> points = Arrays.asList(new Point(10, -20, "listId"), new Point(-10, 20, "listId"));
         doReturn(points).when(pointRepository).findByListId("listId");
 
@@ -253,7 +253,7 @@ class PointListServiceTest {
     }
 
     @Test
-    public void getsPointsFromEmptyList() {
+    void getsPointsFromEmptyList() {
         assertEquals("", pointListService.getPoints("listId"));
     }
 

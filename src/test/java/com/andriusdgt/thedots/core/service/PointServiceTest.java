@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class PointServiceTest {
+final class PointServiceTest {
 
     @Mock
     private Validator validator;
@@ -31,12 +31,12 @@ public class PointServiceTest {
     private PointService pointService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         pointService = new PointService(validator, pointRepository);
     }
 
     @Test
-    public void createsPoint() {
+    void createsPoint() {
         Point point = new Point(1, 1, "listId");
         doReturn(9999L).when(pointRepository).countByListId("listId");
 
@@ -46,7 +46,7 @@ public class PointServiceTest {
     }
 
     @Test
-    public void doesNotCreateOnValidationError() {
+    void doesNotCreateOnValidationError() {
         Point point = new Point(1, 1, "listId");
         @SuppressWarnings("unchecked")
         ConstraintViolation<String> constraintViolationStub = mock(ConstraintViolation.class);
@@ -60,7 +60,7 @@ public class PointServiceTest {
     }
 
     @Test
-    public void doesNotCreateDuplicate() {
+    void doesNotCreateDuplicate() {
         Point point = new Point(1, 1, "listId");
         doReturn(true).when(pointRepository).exists(point);
 
@@ -70,7 +70,7 @@ public class PointServiceTest {
     }
 
     @Test
-    public void doesNotCreateWhenListIsFull() {
+    void doesNotCreateWhenListIsFull() {
         Point point = new Point(1, 1, "listId");
         doReturn(10000L).when(pointRepository).countByListId("listId");
 

@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
-public class SquareServiceTest {
+final class SquareServiceTest {
 
     @Mock
     private PointRepository pointRepository;
@@ -27,12 +27,12 @@ public class SquareServiceTest {
     private SquareService squareService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         squareService = new SquareService(pointRepository);
     }
 
     @Test
-    public void findsSquare() {
+    void findsSquare() {
         doReturn(createPoints("0 0;0 5;2 2;5 0;5 5"))
             .when(pointRepository).findByListIdOrderByXAscYAsc("listId");
 
@@ -43,7 +43,7 @@ public class SquareServiceTest {
     }
 
     @Test
-    public void findsSeveralSquares() {
+    void findsSeveralSquares() {
         doReturn(createPoints("-20 -20;-20 -18;-18 -20;-18 -18;0 0;0 5;2 2;5 0;5 5"))
             .when(pointRepository).findByListIdOrderByXAscYAsc("listId");
 
@@ -61,7 +61,7 @@ public class SquareServiceTest {
     }
 
     @Test
-    public void findsSquaresWithSharedPoints() {
+    void findsSquaresWithSharedPoints() {
         doReturn(createPoints("-20 -20;-20 0;0 -20;0 0;0 20;-20 20;-5 -5"))
             .when(pointRepository).findByListIdOrderByXAscYAsc("listId");
 
@@ -79,7 +79,7 @@ public class SquareServiceTest {
     }
 
     @Test
-    public void findsSquaresInSquares() {
+    void findsSquaresInSquares() {
         doReturn(createPoints("-20 -20;-20 0;0 -20;0 0;0 20;-20 20;20 20;20 0;20 -20"))
             .when(pointRepository).findByListIdOrderByXAscYAsc("listId");
 
@@ -100,7 +100,7 @@ public class SquareServiceTest {
     }
 
     @Test
-    public void ignoresRectangles() {
+    void ignoresRectangles() {
         doReturn(createPoints("0 0;0 3;6 0;6 3"))
             .when(pointRepository).findByListIdOrderByXAscYAsc("listId");
 
@@ -110,12 +110,12 @@ public class SquareServiceTest {
     }
 
     @Test
-    public void doesNotFindSquaresInEmptyPointList() {
+    void doesNotFindSquaresInEmptyPointList() {
         assertEquals(0, squareService.find("listId").size());
     }
 
     @Test
-    public void doesNotFindSquaresFromIncompletePoints() {
+    void doesNotFindSquaresFromIncompletePoints() {
         doReturn(
             Arrays.asList(new Point(0, 0, "listId"), new Point(0, 5, "listId"), new Point(5, 5, "listId"))
         ).when(pointRepository).findByListIdOrderByXAscYAsc("listId");
