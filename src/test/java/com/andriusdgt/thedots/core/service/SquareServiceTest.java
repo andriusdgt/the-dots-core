@@ -1,5 +1,6 @@
 package com.andriusdgt.thedots.core.service;
 
+import com.andriusdgt.thedots.core.factory.PointFactory;
 import com.andriusdgt.thedots.core.model.Point;
 import com.andriusdgt.thedots.core.model.Square;
 import com.andriusdgt.thedots.core.repository.PointRepository;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
-class SquareServiceTest {
+public class SquareServiceTest {
 
     @Mock
     private PointRepository pointRepository;
@@ -31,15 +33,8 @@ class SquareServiceTest {
 
     @Test
     public void findsSquare() {
-        doReturn(
-            Arrays.asList(
-                new Point(0, 0, "listId"),
-                new Point(0, 5, "listId"),
-                new Point(2, 2, "listId"),
-                new Point(5, 0, "listId"),
-                new Point(5, 5, "listId")
-            )
-        ).when(pointRepository).findByListIdOrderByXAscYAsc("listId");
+        doReturn(createPoints("0 0;0 5;2 2;5 0;5 5"))
+            .when(pointRepository).findByListIdOrderByXAscYAsc("listId");
 
         List<Square> squares = squareService.find("listId");
 
@@ -49,19 +44,8 @@ class SquareServiceTest {
 
     @Test
     public void findsSeveralSquares() {
-        doReturn(
-            Arrays.asList(
-                new Point(-20, -20, "listId"),
-                new Point(-20, -18, "listId"),
-                new Point(-18, -20, "listId"),
-                new Point(-18, -18, "listId"),
-                new Point(0, 0, "listId"),
-                new Point(0, 5, "listId"),
-                new Point(2, 2, "listId"),
-                new Point(5, 0, "listId"),
-                new Point(5, 5, "listId")
-            )
-        ).when(pointRepository).findByListIdOrderByXAscYAsc("listId");
+        doReturn(createPoints("-20 -20;-20 -18;-18 -20;-18 -18;0 0;0 5;2 2;5 0;5 5"))
+            .when(pointRepository).findByListIdOrderByXAscYAsc("listId");
 
         List<Square> squares = squareService.find("listId");
 
@@ -78,17 +62,8 @@ class SquareServiceTest {
 
     @Test
     public void findsSquaresWithSharedPoints() {
-        doReturn(
-            Arrays.asList(
-                new Point(-20, -20, "listId"),
-                new Point(-20, 0, "listId"),
-                new Point(0, -20, "listId"),
-                new Point(0, 0, "listId"),
-                new Point(0, 20, "listId"),
-                new Point(-20, 20, "listId"),
-                new Point(-5, -5, "listId")
-            )
-        ).when(pointRepository).findByListIdOrderByXAscYAsc("listId");
+        doReturn(createPoints("-20 -20;-20 0;0 -20;0 0;0 20;-20 20;-5 -5"))
+            .when(pointRepository).findByListIdOrderByXAscYAsc("listId");
 
         List<Square> squares = squareService.find("listId");
 
@@ -105,19 +80,8 @@ class SquareServiceTest {
 
     @Test
     public void findsSquaresInSquares() {
-        doReturn(
-            Arrays.asList(
-                new Point(-20, -20, "listId"),
-                new Point(-20, 0, "listId"),
-                new Point(0, -20, "listId"),
-                new Point(0, 0, "listId"),
-                new Point(0, 20, "listId"),
-                new Point(-20, 20, "listId"),
-                new Point(20, 20, "listId"),
-                new Point(20, 0, "listId"),
-                new Point(20, -20, "listId")
-            )
-        ).when(pointRepository).findByListIdOrderByXAscYAsc("listId");
+        doReturn(createPoints("-20 -20;-20 0;0 -20;0 0;0 20;-20 20;20 20;20 0;20 -20"))
+            .when(pointRepository).findByListIdOrderByXAscYAsc("listId");
 
         List<Square> squares = squareService.find("listId");
 
@@ -137,14 +101,8 @@ class SquareServiceTest {
 
     @Test
     public void ignoresRectangles() {
-        doReturn(
-            Arrays.asList(
-                new Point(0, 0, "listId"),
-                new Point(0, 3, "listId"),
-                new Point(6, 0, "listId"),
-                new Point(6, 3, "listId")
-            )
-        ).when(pointRepository).findByListIdOrderByXAscYAsc("listId");
+        doReturn(createPoints("0 0;0 3;6 0;6 3"))
+            .when(pointRepository).findByListIdOrderByXAscYAsc("listId");
 
         List<Square> squares = squareService.find("listId");
 
@@ -163,6 +121,13 @@ class SquareServiceTest {
         ).when(pointRepository).findByListIdOrderByXAscYAsc("listId");
 
         assertEquals(0, squareService.find("listId").size());
+    }
+
+    private List<Point> createPoints(String pointPairs) {
+        List<Point> points = new ArrayList<>();
+        for (String pointPair : pointPairs.split(";"))
+            points.add(PointFactory.from(pointPair, "listId"));
+        return points;
     }
 
 }

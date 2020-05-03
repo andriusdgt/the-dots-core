@@ -1,5 +1,6 @@
 package com.andriusdgt.thedots.core.service;
 
+import com.andriusdgt.thedots.core.factory.PointFactory;
 import com.andriusdgt.thedots.core.model.Point;
 import com.andriusdgt.thedots.core.model.PointList;
 import com.andriusdgt.thedots.core.model.Warning;
@@ -55,7 +56,7 @@ public final class PointListService {
         List<Point> points = linesStream
             .peek(addFormatWarningIfPresent(warnings))
             .filter(line -> line.matches(POINTS_LINE_REGEX))
-            .map(line -> createPoint(line, listId))
+            .map(line -> PointFactory.from(line, listId))
             .peek(addValidationWarningIfPresent(warnings))
             .filter(point -> validator.validate(point).isEmpty())
             .collect(toList());
@@ -93,12 +94,6 @@ public final class PointListService {
 
     private boolean isFound(PointList pointList) {
         return pointList != null;
-    }
-
-    private Point createPoint(String pointsLine, String listId) {
-        int x = Integer.parseInt(pointsLine.split(" ")[0]);
-        int y = Integer.parseInt(pointsLine.split(" ")[1]);
-        return new Point(x, y, listId);
     }
 
     public String getPoints(String listId) {
