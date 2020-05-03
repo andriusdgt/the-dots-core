@@ -1,5 +1,7 @@
 package com.andriusdgt.thedots.core.model;
 
+import com.andriusdgt.thedots.core.factory.SquareFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,9 +21,13 @@ public final class Square {
             UPPER_LEFT, upperLeftVertex
         ));
         vertices.putAll(Map.of(
-            UPPER_RIGHT, createRightVertex(UPPER_LEFT),
-            BOTTOM_RIGHT, createRightVertex(BOTTOM_LEFT)
+            UPPER_RIGHT, SquareFactory.newRightPoint(this, UPPER_LEFT),
+            BOTTOM_RIGHT, SquareFactory.newRightPoint(this, BOTTOM_LEFT)
         ));
+    }
+
+    public Map<SquareVertex, Point> getVertices() {
+        return vertices;
     }
 
     @Override
@@ -39,24 +45,4 @@ public final class Square {
         return getVertices().hashCode();
     }
 
-    public Map<SquareVertex, Point> getVertices() {
-        return vertices;
-    }
-
-    public Point getVertex(SquareVertex vertex) {
-        return vertices.get(vertex);
-    }
-
-    public int getSideLength() {
-        return Math.abs(getVertex(UPPER_LEFT).getY() - getVertex(BOTTOM_LEFT).getY());
-    }
-
-    private Point createRightVertex(SquareVertex leftVertex) {
-        Point leftPoint = getVertex(leftVertex);
-        return new Point(
-            leftPoint.getX() + getSideLength(),
-            leftPoint.getY(),
-            leftPoint.getListId()
-        );
-    }
 }

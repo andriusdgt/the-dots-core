@@ -1,5 +1,6 @@
 package com.andriusdgt.thedots.core.service;
 
+import com.andriusdgt.thedots.core.factory.SquareFactory;
 import com.andriusdgt.thedots.core.model.Point;
 import com.andriusdgt.thedots.core.model.Square;
 import com.andriusdgt.thedots.core.repository.PointRepository;
@@ -54,8 +55,12 @@ public final class SquareService {
 
     private boolean squareExists(Map<Integer, List<Point>> groupedXPoints, Square square, int x) {
         return groupedXPoints
-            .getOrDefault(x + square.getSideLength(), new ArrayList<>())
-            .containsAll(new HashSet<>(Set.of(square.getVertex(UPPER_RIGHT), square.getVertex(BOTTOM_RIGHT))));
+            .getOrDefault(x + SquareFactory.getSideLength(square), new ArrayList<>())
+            .containsAll(
+                new HashSet<>(Set.of(
+                    SquareFactory.getPoint(UPPER_RIGHT, square), SquareFactory.getPoint(BOTTOM_RIGHT, square)
+                ))
+            );
     }
 
 }
