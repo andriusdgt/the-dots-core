@@ -53,15 +53,9 @@ public final class SquareService {
     }
 
     private boolean squareExists(Map<Integer, List<Point>> groupedXPoints, Square square, int x) {
-        return getPoints(x + square.getSideLength(), groupedXPoints).containsAll(getRightVertices(square));
-    }
-
-    private List<Point> getPoints(int x, Map<Integer, List<Point>> groupedXPoints) {
-        return groupedXPoints.getOrDefault(x, new ArrayList<>());
-    }
-
-    private HashSet<Point> getRightVertices(Square square) {
-        return new HashSet<>(Set.of(square.getVertex(UPPER_RIGHT), square.getVertex(BOTTOM_RIGHT)));
+        return groupedXPoints
+            .getOrDefault(x + square.getSideLength(), new ArrayList<>())
+            .containsAll(new HashSet<>(Set.of(square.getVertex(UPPER_RIGHT), square.getVertex(BOTTOM_RIGHT))));
     }
 
 }
