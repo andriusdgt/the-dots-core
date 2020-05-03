@@ -40,7 +40,7 @@ final class PointListServiceTest {
 
     @Test
     void createsPointList() {
-        PointList pointList = new PointList("listId", "list name");
+        PointList pointList = new PointList(null, "list name");
 
         pointListService.create(pointList);
 
@@ -49,7 +49,7 @@ final class PointListServiceTest {
 
     @Test
     void doesNotCreateOnValidationError() {
-        PointList pointList = new PointList("listId", "list name");
+        PointList pointList = new PointList(null, "list name");
         @SuppressWarnings("unchecked")
         ConstraintViolation<String> constraintViolationStub = mock(ConstraintViolation.class);
         doReturn("validation error").when(constraintViolationStub).getMessage();
@@ -63,7 +63,7 @@ final class PointListServiceTest {
 
     @Test
     void deletedPointListOfDuplicateName() {
-        PointList pointListToSave = new PointList("newListId", "list name");
+        PointList pointListToSave = new PointList(null, "list name");
         PointList savedPointList = new PointList("listId", "list name");
         doReturn(savedPointList).when(pointListRepository).findByName("list name");
 
@@ -74,7 +74,7 @@ final class PointListServiceTest {
 
     @Test
     void deletedPointsFromListOfDuplicateName() {
-        PointList pointListToSave = new PointList("newListId", "list name");
+        PointList pointListToSave = new PointList(null, "list name");
         PointList savedPointList = new PointList("listId", "list name");
         doReturn(savedPointList).when(pointListRepository).findByName("list name");
 
