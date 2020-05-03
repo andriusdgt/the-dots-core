@@ -27,26 +27,6 @@ public final class Point implements Serializable {
         this.listId = listId;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Point)) return false;
-
-        Point that = (Point) o;
-
-        if (getX() != that.getX()) return false;
-        if (getY() != that.getY()) return false;
-        return getListId().equals(that.getListId());
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getX();
-        result = 31 * result + getY();
-        result = 31 * result + getListId().hashCode();
-        return result;
-    }
-
     public String getId() {
         return id;
     }
@@ -61,5 +41,25 @@ public final class Point implements Serializable {
 
     public String getListId() {
         return listId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Point)) return false;
+
+        Point point = (Point) o;
+
+        if (getX() != point.getX()) return false;
+        if (getY() != point.getY()) return false;
+        return getListId().equals(point.getListId());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getX();
+        result = 31 * result + getY();
+        result = 31 * result + getListId().hashCode();
+        return result;
     }
 }

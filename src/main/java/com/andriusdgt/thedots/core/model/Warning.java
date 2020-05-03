@@ -8,6 +8,10 @@ public final class Warning {
         this.message = message;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -21,10 +25,6 @@ public final class Warning {
     @Override
     public int hashCode() {
         return getMessage() != null ? getMessage().hashCode() : 0;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
 }
