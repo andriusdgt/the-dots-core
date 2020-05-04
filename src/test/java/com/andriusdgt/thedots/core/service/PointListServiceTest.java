@@ -212,7 +212,7 @@ final class PointListServiceTest {
         }
 
         @Test
-        void doesNotSaveTooManyPointsAtTheTime() {
+        void doesNotSaveTooManyPoints() {
             pointListService.create(Stream.of("10 20", "-10 -20"), "listId", 1);
 
             verify(pointRepository).saveAll(Collections.singletonList(new Point(10, 20, "listId")));
